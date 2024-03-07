@@ -13,19 +13,34 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.myapplication.models.AppRequestBody;
+import com.example.myapplication.models.UserInfo;
+import com.example.myapplication.network.ApiService;
+import com.example.myapplication.network.RetrofitClient;
+
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import java.util.Objects;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.SimpleTimeZone;
+import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
     private Timer timer;
@@ -35,6 +50,8 @@ public class MainActivity extends AppCompatActivity {
     StringBuilder stringBuilder = new StringBuilder();
 
     private TextView textViewNameUser;
+    private TextView textViewNamePosition;
+    private TextView textViewNameUnit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +70,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
         textViewNameUser = findViewById(R.id.textNameUser);
+        textViewNamePosition = findViewById(R.id.textPositionUser);
+        textViewNameUnit = findViewById(R.id.textUnitUser);
 
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -75,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
 
             if (event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
                 Log.d("onKeyUp is: ", stringBuilder.toString());
-                textViewNameUser.setText(stringBuilder.toString());
+                getInfoUser(stringBuilder.toString().replaceAll("\n", ""));
                 stringBuilder.setLength(0);
 //                navigatorNextScreen();
             }
@@ -89,4 +108,36 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
         finish();
     }
+
+    public void getInfoUser(String valueQRCode){
+        AppRequestBody appRequestBody = new AppRequestBody("2024-03-04 09:00:00","POS01");
+        RetrofitClient.getClient().create(ApiService.class).getInfoUser(valueQRCode, appRequestBody).enqueue(new Callback<UserInfo>() {
+            @Override
+            public void onResponse(@NonNull Call<UserInfo> call, @NonNull Response<UserInfo> response) {
+                if(response.isSuccessful()){
+                    UserInfo data = response.body();
+                    if(data != null){
+                        textViewNameUser.setText(data.getName());
+                        textViewNamePosition.setText(data.getPosition());
+                        textViewNameUnit.setText(data.getBranch());
+                    } else {
+                        Log.e("Get info user", "data null");
+                    }
+                } else {
+                    Log.e("Get info user", "onResponse failure");
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<UserInfo> call, @NonNull Throwable t) {
+                Log.e("Get info user", "onResponse failure, try again");
+            }
+        });
+    }
+
+//    public static String convertDateTime(){
+//        SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//        dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+//        return dateTimeFormat.format();
+//    }
 }

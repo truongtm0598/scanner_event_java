@@ -1,30 +1,20 @@
 package com.example.myapplication;
-
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.VideoView;
-
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import java.sql.Array;
-
 public class ShowADSActivity extends AppCompatActivity {
-    private VideoView videoViewADs;
-    private String[] listVideoUrl = {
-            "https://storage.googleapis.com/test-9f696.appspot.com/video2.mp4",
-            "https://storage.googleapis.com/test-9f696.appspot.com/video3.mp4",
-    };
-    private int currentVideoIndex = 0;
+//    private VideoView videoViewADs;
+//    private String[] listVideoUrl = {
+//            "https://storage.googleapis.com/test-9f696.appspot.com/video2.mp4",
+//            "https://storage.googleapis.com/test-9f696.appspot.com/video3.mp4",
+//    };
+//    private int currentVideoIndex = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,31 +28,31 @@ public class ShowADSActivity extends AppCompatActivity {
         });
 
         //run only video
-//        String videoURL = "https://storage.googleapis.com/test-9f696.appspot.com/videoplayback.mp4";
-//        VideoView videoAD = findViewById(R.id.videoViewADs);
-//        Uri uri = Uri.parse(videoURL);
-//        videoAD.setVideoURI(uri);
-//
-//        // Optionally, you can start playing the video immediately
-//        videoAD.start();
+        String videoURL = "https://storage.googleapis.com/test-9f696.appspot.com/videoplayback.mp4";
+        VideoView videoAD = findViewById(R.id.videoViewADs);
+        Uri uri = Uri.parse(videoURL);
+        videoAD.setVideoURI(uri);
+
+        // Optionally, you can start playing the video immediately
+        videoAD.start();
 
         //Run a list video
-        videoViewADs = findViewById(R.id.videoViewADs);
-        playVideo(currentVideoIndex);
+//        videoViewADs = findViewById(R.id.videoViewADs);
+//        playVideo(currentVideoIndex);
     }
 
-    public void playVideo(int index) {
-        if (index >= 0 && index < listVideoUrl.length) {
-            videoViewADs.setVideoURI(Uri.parse(listVideoUrl[index]));
-            videoViewADs.setOnCompletionListener(mp -> {
-                currentVideoIndex++;
-                if (currentVideoIndex >= listVideoUrl.length) {
-                    currentVideoIndex = 0; // Reset index to loop through videos
-                }
-                playVideo(currentVideoIndex);
-
-            });
-            videoViewADs.start();
-        }
-    }
+//    public void playVideo(int index) {
+//        if (index >= 0 && index < listVideoUrl.length) {
+//            videoViewADs.setVideoURI(Uri.parse(listVideoUrl[index]));
+//            videoViewADs.setOnCompletionListener(mp -> {
+//                currentVideoIndex++;
+//                if (currentVideoIndex >= listVideoUrl.length) {
+//                    currentVideoIndex = 0; // Reset index to loop through videos
+//                }
+//                playVideo(currentVideoIndex);
+//
+//            });
+//            videoViewADs.start();
+//        }
+//    }
 }

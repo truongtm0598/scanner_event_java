@@ -16,7 +16,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/bg1" />
+        app:srcCompat="@drawable/bg3" />
 
     <TextView
         android:id="@+id/textViewWelcome"
@@ -24,7 +24,7 @@
         android:layout_height="wrap_content"
         android:text="Chào mừng anh đến với hội thảo"
         android:textColor="@color/white"
-        android:textSize="20sp"
+        android:textSize="32dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/marginTopTextWelcome" />
@@ -34,25 +34,25 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.09" />
+        app:layout_constraintGuide_percent="0.1" />
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/imageAvatar"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
+        android:layout_width="310dp"
+        android:layout_height="310dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textViewWelcome"
         app:layout_constraintTop_toTopOf="@+id/marginTopImageAvatar"
         app:shapeAppearanceOverlay="@style/circle"
-        app:srcCompat="@drawable/avatar" />
+        app:srcCompat="@drawable/avatar2" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/marginTopImageAvatar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.28" />
+        app:layout_constraintGuide_percent="0.283" />
 
     <TextView
         android:id="@+id/textNameUser"
@@ -60,7 +60,7 @@
         android:layout_height="wrap_content"
         android:text="Nguyễn Kiên Long"
         android:textColor="@color/white"
-        android:textSize="28sp"
+        android:textSize="36sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -80,7 +80,7 @@
         android:layout_marginTop="4dp"
         android:text="Chuyên viên phát triển ứng dụng"
         android:textColor="@color/white"
-        android:textSize="20sp"
+        android:textSize="32sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textNameUser" />
@@ -92,7 +92,7 @@
         android:layout_marginTop="4dp"
         android:text="Trung tâm công nghệ thông tin"
         android:textColor="@color/white"
-        android:textSize="20sp"
+        android:textSize="32sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textPositionUser" />
