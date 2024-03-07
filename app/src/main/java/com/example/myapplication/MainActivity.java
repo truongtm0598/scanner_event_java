@@ -10,6 +10,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,7 +33,8 @@ public class MainActivity extends AppCompatActivity {
     private static final long TIMER_VALUE = 3000;
 
     StringBuilder stringBuilder = new StringBuilder();
-    String x;
+
+    private TextView textViewNameUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,9 +52,12 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        textViewNameUser = findViewById(R.id.textNameUser);
+
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
+//                navigatorNextScreen();
 //                Intent intent = new Intent(MainActivity.this, ShowADSActivity.class);
 //                startActivity(intent);
 //                finish();
@@ -63,15 +68,25 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
-            if(event.getKeyCode() != KeyEvent.KEYCODE_SHIFT_LEFT) {
+            if (event.getKeyCode() != KeyEvent.KEYCODE_SHIFT_LEFT) {
                 char pressedKey = (char) event.getUnicodeChar();
-                stringBuilder.append(pressedKey);}
+                stringBuilder.append(pressedKey);
+            }
 
             if (event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
                 Log.d("onKeyUp is: ", stringBuilder.toString());
+                textViewNameUser.setText(stringBuilder.toString());
+                stringBuilder.setLength(0);
+//                navigatorNextScreen();
             }
         }
 
         return super.dispatchKeyEvent(event);
+    }
+
+    public void navigatorNextScreen() {
+        Intent intent = new Intent(MainActivity.this, ShowADSActivity.class);
+        startActivity(intent);
+        finish();
     }
 }

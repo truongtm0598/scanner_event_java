@@ -12,10 +12,10 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:scaleType="centerCrop"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/bg1" />
 
     <TextView
@@ -25,9 +25,9 @@
         android:text="Chào mừng anh đến với hội thảo"
         android:textColor="@color/white"
         android:textSize="20sp"
-        app:layout_constraintTop_toTopOf="@+id/marginTopTextWelcome"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/marginTopTextWelcome" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/marginTopTextWelcome"
@@ -42,10 +42,10 @@
         android:layout_height="200dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/marginTopImageAvatar"
         app:layout_constraintTop_toBottomOf="@+id/textViewWelcome"
+        app:layout_constraintTop_toTopOf="@+id/marginTopImageAvatar"
         app:shapeAppearanceOverlay="@style/circle"
-        app:srcCompat="@drawable/avatar"/>
+        app:srcCompat="@drawable/avatar" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/marginTopImageAvatar"
@@ -62,9 +62,9 @@
         android:textColor="@color/white"
         android:textSize="28sp"
         android:textStyle="bold"
-        app:layout_constraintTop_toTopOf="@+id/marginTopTextUserName"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/marginTopTextUserName" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/marginTopTextUserName"
@@ -83,7 +83,7 @@
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textNameUser"/>
+        app:layout_constraintTop_toBottomOf="@+id/textNameUser" />
 
     <TextView
         android:id="@+id/textUnitUser"
