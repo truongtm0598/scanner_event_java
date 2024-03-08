@@ -23,6 +23,9 @@ import com.example.myapplication.models.AppRequestBody;
 import com.example.myapplication.models.UserInfo;
 import com.example.myapplication.network.ApiService;
 import com.example.myapplication.network.RetrofitClient;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.security.ProviderInstaller;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -56,6 +59,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        try {
+            ProviderInstaller.installIfNeeded(getApplicationContext());
+        } catch (GooglePlayServicesRepairableException e) {
+            throw new RuntimeException(e);
+        } catch (GooglePlayServicesNotAvailableException e) {
+            throw new RuntimeException(e);
+        }
+
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         int screenHeight = displayMetrics.heightPixels;
@@ -96,7 +107,6 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("onKeyUp is: ", stringBuilder.toString());
                 getInfoUser(stringBuilder.toString().replaceAll("\n", ""));
                 stringBuilder.setLength(0);
-//                navigatorNextScreen();
             }
         }
 
@@ -120,6 +130,7 @@ public class MainActivity extends AppCompatActivity {
                         textViewNameUser.setText(data.getName());
                         textViewNamePosition.setText(data.getPosition());
                         textViewNameUnit.setText(data.getBranch());
+                        getAvatar(data.getPortraitId());
                     } else {
                         Log.e("Get info user", "data null");
                     }
@@ -130,7 +141,23 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(@NonNull Call<UserInfo> call, @NonNull Throwable t) {
-                Log.e("Get info user", "onResponse failure, try again");
+                Log.e("Get info user",  t.getMessage() +"\n"+ t.getCause() +"\n"+ t.getStackTrace());
+            }
+        });
+    }
+
+    public void getAvatar(String portraitId){
+        RetrofitClient.getClient().create(ApiService.class).getAvatarImage("image", portraitId).enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+                if(response.isSuccessful()){
+                    Log.d("image", response.body().toString());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+                Log.e("Get image",  t.getMessage() +"\n"+ t.getCause() +"\n"+ t.getStackTrace());
             }
         });
     }

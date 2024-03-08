@@ -10,8 +10,8 @@ public class RetrofitClient {
     private static final String BASE_URL = "https://event2024.kienlongbank.com/";
     private static final String API_KEY = "4f720dd0a13aec6b440d18531dc5e8e0";
 
-    public static Retrofit getClient(){
-        if(retrofit == null){
+    public static Retrofit getClient() {
+        if (retrofit == null) {
             OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
             httpClient.addInterceptor(chain -> {
                 Request original = chain.request();
@@ -22,5 +22,4 @@ public class RetrofitClient {
         }
         return retrofit;
     }
-
 }
