@@ -4,11 +4,10 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -23,49 +22,35 @@ import com.example.myapplication.models.AppRequestBody;
 import com.example.myapplication.models.UserInfo;
 import com.example.myapplication.network.ApiService;
 import com.example.myapplication.network.RetrofitClient;
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.security.ProviderInstaller;
-
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import java.util.Objects;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.SimpleTimeZone;
-import java.util.TimeZone;
+import com.squareup.picasso.OkHttp3Downloader;
+import com.squareup.picasso.Picasso;
+import java.util.Arrays;
 import java.util.Timer;
-import java.util.TimerTask;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
     private Timer timer;
-
     private static final long TIMER_VALUE = 3000;
-
     StringBuilder stringBuilder = new StringBuilder();
-
+    private Picasso picasso;
     private TextView textViewNameUser;
     private TextView textViewNamePosition;
     private TextView textViewNameUnit;
+    private TextView textViewWelcome;
+    private ImageView imageAvatarView;
+    private ShimmerFrameLayout shimmerFrameLayout;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        try {
-            ProviderInstaller.installIfNeeded(getApplicationContext());
-        } catch (GooglePlayServicesRepairableException e) {
-            throw new RuntimeException(e);
-        } catch (GooglePlayServicesNotAvailableException e) {
-            throw new RuntimeException(e);
-        }
+        initData();
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
@@ -80,17 +65,20 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        shimmerFrameLayout = findViewById(R.id.placeholderView);
         textViewNameUser = findViewById(R.id.textNameUser);
         textViewNamePosition = findViewById(R.id.textPositionUser);
         textViewNameUnit = findViewById(R.id.textUnitUser);
+        imageAvatarView = findViewById(R.id.imageAvatar);
+        textViewWelcome = findViewById(R.id.textViewWelcome);
+
+        shimmerFrameLayout.setVisibility(View.INVISIBLE);
 
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-//                navigatorNextScreen();
-//                Intent intent = new Intent(MainActivity.this, ShowADSActivity.class);
-//                startActivity(intent);
-//                finish();
+//                getInfoUser("de77c27d-a2b5-4a89-81cc-296a7ec4ca38");
+                navigatorNextScreen();
             }
         }, TIMER_VALUE);
     }
@@ -113,6 +101,21 @@ public class MainActivity extends AppCompatActivity {
         return super.dispatchKeyEvent(event);
     }
 
+    public void initData(){
+        try {
+            ProviderInstaller.installIfNeeded(getApplicationContext());
+        } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
+            throw new RuntimeException(e);
+        }
+
+        // Create a Picasso instance with the custom OkHttpClient
+        picasso = new Picasso.Builder(this)
+                .downloader(new OkHttp3Downloader(RetrofitClient.getClientImage()))
+                .indicatorsEnabled(true)
+                .build();
+    }
+
+
     public void navigatorNextScreen() {
         Intent intent = new Intent(MainActivity.this, ShowADSActivity.class);
         startActivity(intent);
@@ -120,6 +123,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void getInfoUser(String valueQRCode){
+        shimmerFrameLayout.startShimmer();
+        setShowHideContentView(false);
+
         AppRequestBody appRequestBody = new AppRequestBody("2024-03-04 09:00:00","POS01");
         RetrofitClient.getClient().create(ApiService.class).getInfoUser(valueQRCode, appRequestBody).enqueue(new Callback<UserInfo>() {
             @Override
@@ -127,10 +133,7 @@ public class MainActivity extends AppCompatActivity {
                 if(response.isSuccessful()){
                     UserInfo data = response.body();
                     if(data != null){
-                        textViewNameUser.setText(data.getName());
-                        textViewNamePosition.setText(data.getPosition());
-                        textViewNameUnit.setText(data.getBranch());
-                        getAvatar(data.getPortraitId());
+                        getAvatar(data);
                     } else {
                         Log.e("Get info user", "data null");
                     }
@@ -141,30 +144,46 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(@NonNull Call<UserInfo> call, @NonNull Throwable t) {
-                Log.e("Get info user",  t.getMessage() +"\n"+ t.getCause() +"\n"+ t.getStackTrace());
+                Log.e("Get info user",  t.getMessage() +"\n"+ t.getCause() +"\n"+ Arrays.toString(t.getStackTrace()));
             }
         });
     }
 
-    public void getAvatar(String portraitId){
-        RetrofitClient.getClient().create(ApiService.class).getAvatarImage("image", portraitId).enqueue(new Callback<String>() {
-            @Override
-            public void onResponse(Call<String> call, Response<String> response) {
-                if(response.isSuccessful()){
-                    Log.d("image", response.body().toString());
-                }
-            }
+    @SuppressLint("SetTextI18n")
+    public void getAvatar(UserInfo data){
+        // Load image from URL into ImageView using Picasso
+        String BASE_IMAGE_URL = "https://event2024.kienlongbank.com/?entryPoint=image&id=";
+        picasso.load( BASE_IMAGE_URL + data.getPortraitId())
+                .centerCrop()
+                .fit()
+                .placeholder(R.drawable.avatar2)
+                .error(R.drawable.avatar2)
+                .into(imageAvatarView);
+        textViewNameUser.setText(data.getName());
+        textViewNamePosition.setText(data.getPosition());
+        textViewNameUnit.setText(data.getBranch());
+        textViewWelcome.setText("Chào mừng "+ data.getGender() +" đến với hội thảo");
 
-            @Override
-            public void onFailure(Call<String> call, Throwable t) {
-                Log.e("Get image",  t.getMessage() +"\n"+ t.getCause() +"\n"+ t.getStackTrace());
-            }
-        });
+        shimmerFrameLayout.stopShimmer();
+        setShowHideContentView(true);
     }
 
-//    public static String convertDateTime(){
-//        SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//        dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-//        return dateTimeFormat.format();
-//    }
+    public void setShowHideContentView(boolean isShowData){
+        if(isShowData){
+            textViewWelcome.setVisibility(View.VISIBLE);
+            imageAvatarView.setVisibility(View.VISIBLE);
+            textViewNameUser.setVisibility(View.VISIBLE);
+            textViewNamePosition.setVisibility(View.VISIBLE);
+            textViewNameUnit.setVisibility(View.VISIBLE);
+            shimmerFrameLayout.setVisibility(View.INVISIBLE);
+        } else {
+            textViewWelcome.setVisibility(View.INVISIBLE);
+            imageAvatarView.setVisibility(View.INVISIBLE);
+            textViewNameUser.setVisibility(View.INVISIBLE);
+            textViewNamePosition.setVisibility(View.INVISIBLE);
+            textViewNameUnit.setVisibility(View.INVISIBLE);
+            shimmerFrameLayout.setVisibility(View.VISIBLE);
+        }
+
+    }
 }

@@ -16,9 +16,4 @@ public interface ApiService {
             @Path("id") String id,
             @Body AppRequestBody appRequestBody
     );
-    @GET("/")
-    Call<String> getAvatarImage(
-            @Query("entryPoint") String entryPoint,
-            @Query("id") String id
-    );
 }

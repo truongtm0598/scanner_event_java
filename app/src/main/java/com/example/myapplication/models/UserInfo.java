@@ -1,5 +1,7 @@
 package com.example.myapplication.models;
 
+import java.util.Objects;
+
 public class UserInfo {
     String name;
     String position;
@@ -7,7 +9,7 @@ public class UserInfo {
     String sex;
     String portraitId;
 
-    public String getName(){
+    public String getName() {
         return name;
     }
 
@@ -20,7 +22,11 @@ public class UserInfo {
     }
 
     public String getGender() {
-        return sex;
+        if(Objects.equals(sex, "Male")){
+            return "anh";
+        } else {
+            return "chị";
+        }
     }
 
     public String getPortraitId() {
