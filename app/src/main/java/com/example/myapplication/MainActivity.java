@@ -23,9 +23,6 @@ import com.example.myapplication.models.UserInfo;
 import com.example.myapplication.network.ApiService;
 import com.example.myapplication.network.RetrofitClient;
 import com.facebook.shimmer.ShimmerFrameLayout;
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.common.GooglePlayServicesRepairableException;
-import com.google.android.gms.security.ProviderInstaller;
 import com.squareup.picasso.OkHttp3Downloader;
 import com.squareup.picasso.Picasso;
 import java.util.Arrays;
@@ -36,7 +33,7 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
     private Timer timer;
-    private static final long TIMER_VALUE = 3000;
+    private static final long TIMER_VALUE = 5000;
     StringBuilder stringBuilder = new StringBuilder();
     private Picasso picasso;
     private TextView textViewNameUser;
@@ -50,12 +47,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        initData();
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        int screenHeight = displayMetrics.heightPixels;
-        int imageAvatarHeight = (int) (screenHeight * 0.25);
+//        int screenHeight = displayMetrics.heightPixels;
+//        int imageAvatarHeight = (int) (screenHeight * 0.25);
 
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
@@ -65,20 +61,14 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        shimmerFrameLayout = findViewById(R.id.placeholderView);
-        textViewNameUser = findViewById(R.id.textNameUser);
-        textViewNamePosition = findViewById(R.id.textPositionUser);
-        textViewNameUnit = findViewById(R.id.textUnitUser);
-        imageAvatarView = findViewById(R.id.imageAvatar);
-        textViewWelcome = findViewById(R.id.textViewWelcome);
-
-        shimmerFrameLayout.setVisibility(View.INVISIBLE);
+        initData();
 
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-//                getInfoUser("de77c27d-a2b5-4a89-81cc-296a7ec4ca38");
-                navigatorNextScreen();
+                // Đoạn này em giả lập việc quét QR code. sau khi vào app 5s sẽ gọi api.
+                getInfoUser("de77c27d-a2b5-4a89-81cc-296a7ec4ca38");
+                //navigatorNextScreen();
             }
         }, TIMER_VALUE);
     }
@@ -102,17 +92,29 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void initData(){
-        try {
-            ProviderInstaller.installIfNeeded(getApplicationContext());
-        } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
-            throw new RuntimeException(e);
-        }
+        //Đoạn này fix lỗi dành cho các device có google play service
+        //Trên standee thì không có google play service
+
+//        try {
+//            ProviderInstaller.installIfNeeded(getApplicationContext());
+//        } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
+//            throw new RuntimeException(e);
+//        }
 
         // Create a Picasso instance with the custom OkHttpClient
         picasso = new Picasso.Builder(this)
                 .downloader(new OkHttp3Downloader(RetrofitClient.getClientImage()))
                 .indicatorsEnabled(true)
                 .build();
+
+        shimmerFrameLayout = findViewById(R.id.placeholderView);
+        textViewNameUser = findViewById(R.id.textNameUser);
+        textViewNamePosition = findViewById(R.id.textPositionUser);
+        textViewNameUnit = findViewById(R.id.textUnitUser);
+        imageAvatarView = findViewById(R.id.imageAvatar);
+        textViewWelcome = findViewById(R.id.textViewWelcome);
+
+        shimmerFrameLayout.setVisibility(View.INVISIBLE);
     }
 
 
@@ -144,6 +146,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(@NonNull Call<UserInfo> call, @NonNull Throwable t) {
+                setShowHideContentView(true);
                 Log.e("Get info user",  t.getMessage() +"\n"+ t.getCause() +"\n"+ Arrays.toString(t.getStackTrace()));
             }
         });
