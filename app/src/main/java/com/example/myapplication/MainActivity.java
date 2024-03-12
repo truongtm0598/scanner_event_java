@@ -1,6 +1,7 @@
 package com.example.myapplication;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -18,6 +19,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.myapplication.Dialogs.AppDialog;
 import com.example.myapplication.models.AppRequestBody;
 import com.example.myapplication.models.UserInfo;
 import com.example.myapplication.network.ApiService;
@@ -25,17 +27,21 @@ import com.example.myapplication.network.RetrofitClient;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.squareup.picasso.OkHttp3Downloader;
 import com.squareup.picasso.Picasso;
+
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Timer;
+import java.util.Date;
+import java.util.TimeZone;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
-    private Timer timer;
-    private static final long TIMER_VALUE = 5000;
+    private static final long TIMER_VALUE = 2000;
     StringBuilder stringBuilder = new StringBuilder();
     private Picasso picasso;
+    private SimpleDateFormat formatter;
+    private Date date;
     private TextView textViewNameUser;
     private TextView textViewNamePosition;
     private TextView textViewNameUnit;
@@ -50,8 +56,6 @@ public class MainActivity extends AppCompatActivity {
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-//        int screenHeight = displayMetrics.heightPixels;
-//        int imageAvatarHeight = (int) (screenHeight * 0.25);
 
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
@@ -66,9 +70,8 @@ public class MainActivity extends AppCompatActivity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                // Đoạn này em giả lập việc quét QR code. sau khi vào app 5s sẽ gọi api.
-                getInfoUser("de77c27d-a2b5-4a89-81cc-296a7ec4ca38");
-                //navigatorNextScreen();
+//                getInfoUser("209675af-92e8-4f9e-ac6a-27b8fb6a76c3");
+                navigatorNextScreen();
             }
         }, TIMER_VALUE);
     }
@@ -83,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
 
             if (event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
                 Log.d("onKeyUp is: ", stringBuilder.toString());
-                getInfoUser(stringBuilder.toString().replaceAll("\n", ""));
+                getInfoUser(stringBuilder.toString().replaceAll("\n", ""), this);
                 stringBuilder.setLength(0);
             }
         }
@@ -92,20 +95,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void initData(){
-        //Đoạn này fix lỗi dành cho các device có google play service
-        //Trên standee thì không có google play service
-
-//        try {
-//            ProviderInstaller.installIfNeeded(getApplicationContext());
-//        } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
-//            throw new RuntimeException(e);
-//        }
-
         // Create a Picasso instance with the custom OkHttpClient
         picasso = new Picasso.Builder(this)
                 .downloader(new OkHttp3Downloader(RetrofitClient.getClientImage()))
                 .indicatorsEnabled(true)
                 .build();
+
+        formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         shimmerFrameLayout = findViewById(R.id.placeholderView);
         textViewNameUser = findViewById(R.id.textNameUser);
@@ -113,7 +109,6 @@ public class MainActivity extends AppCompatActivity {
         textViewNameUnit = findViewById(R.id.textUnitUser);
         imageAvatarView = findViewById(R.id.imageAvatar);
         textViewWelcome = findViewById(R.id.textViewWelcome);
-
         shimmerFrameLayout.setVisibility(View.INVISIBLE);
     }
 
@@ -124,11 +119,13 @@ public class MainActivity extends AppCompatActivity {
         finish();
     }
 
-    public void getInfoUser(String valueQRCode){
-        shimmerFrameLayout.startShimmer();
-        setShowHideContentView(false);
+    public void getInfoUser(String valueQRCode, Context context){
+        date = new Date();
+        formatter.setTimeZone(TimeZone.getTimeZone("GMT"));
+        String timeCheckIn = formatter.format(date);
+        Log.d("timezone", timeCheckIn);
 
-        AppRequestBody appRequestBody = new AppRequestBody("2024-03-04 09:00:00","POS01");
+        AppRequestBody appRequestBody = new AppRequestBody(timeCheckIn,"POS01");
         RetrofitClient.getClient().create(ApiService.class).getInfoUser(valueQRCode, appRequestBody).enqueue(new Callback<UserInfo>() {
             @Override
             public void onResponse(@NonNull Call<UserInfo> call, @NonNull Response<UserInfo> response) {
@@ -140,35 +137,54 @@ public class MainActivity extends AppCompatActivity {
                         Log.e("Get info user", "data null");
                     }
                 } else {
-                    Log.e("Get info user", "onResponse failure");
+                    // Log mã trạng thái của phản hồi
+                    Log.e("Get info user", "Response code: " + response.code());
+                    String errorBody = response.errorBody().toString();
+                    Log.e("Get info user", "Error: " + errorBody);
+
+                    if(response.code() == 400){
+                        setShowHideContentView(true);
+                        AppDialog.showDialog(context, "Lỗi", "QR code không chính xác.\nVui lòng thử lại");
+                    }
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<UserInfo> call, @NonNull Throwable t) {
                 setShowHideContentView(true);
-                Log.e("Get info user",  t.getMessage() +"\n"+ t.getCause() +"\n"+ Arrays.toString(t.getStackTrace()));
+                Log.e("Get info user",  t.getMessage() +"\n"+ t.getCause() +"\n"+ Arrays.toString(t.getStackTrace()) );
             }
         });
     }
 
     @SuppressLint("SetTextI18n")
     public void getAvatar(UserInfo data){
-        // Load image from URL into ImageView using Picasso
-        String BASE_IMAGE_URL = "https://event2024.kienlongbank.com/?entryPoint=image&id=";
-        picasso.load( BASE_IMAGE_URL + data.getPortraitId())
-                .centerCrop()
-                .fit()
-                .placeholder(R.drawable.avatar2)
-                .error(R.drawable.avatar2)
-                .into(imageAvatarView);
+        imageAvatarView.setImageResource(R.drawable.avatar_placeholder);
+        setShowHideContentView(false);
+
         textViewNameUser.setText(data.getName());
         textViewNamePosition.setText(data.getPosition());
         textViewNameUnit.setText(data.getBranch());
         textViewWelcome.setText("Chào mừng "+ data.getGender() +" đến với hội thảo");
 
-        shimmerFrameLayout.stopShimmer();
-        setShowHideContentView(true);
+        // Load image from URL into ImageView using Picasso
+        String BASE_IMAGE_URL = "http://event2024.kienlongbank.com/?entryPoint=image&id=";
+        picasso.load( BASE_IMAGE_URL + data.getPortraitId())
+                .centerCrop()
+                .fit()
+                .placeholder(R.drawable.avatar_placeholder)
+                .error(R.drawable.avatar_placeholder)
+                .into(imageAvatarView, new com.squareup.picasso.Callback() {
+                    @Override
+                    public void onSuccess() {
+                        setShowHideContentView(true);
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        setShowHideContentView(true);
+                    }
+                });
     }
 
     public void setShowHideContentView(boolean isShowData){
@@ -179,6 +195,7 @@ public class MainActivity extends AppCompatActivity {
             textViewNamePosition.setVisibility(View.VISIBLE);
             textViewNameUnit.setVisibility(View.VISIBLE);
             shimmerFrameLayout.setVisibility(View.INVISIBLE);
+            shimmerFrameLayout.stopShimmer();
         } else {
             textViewWelcome.setVisibility(View.INVISIBLE);
             imageAvatarView.setVisibility(View.INVISIBLE);
@@ -186,7 +203,7 @@ public class MainActivity extends AppCompatActivity {
             textViewNamePosition.setVisibility(View.INVISIBLE);
             textViewNameUnit.setVisibility(View.INVISIBLE);
             shimmerFrameLayout.setVisibility(View.VISIBLE);
+            shimmerFrameLayout.startShimmer();
         }
-
     }
 }

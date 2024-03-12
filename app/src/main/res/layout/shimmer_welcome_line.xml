@@ -24,6 +24,17 @@
         app:layout_constraintGuide_percent="0.1" />
 
     <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/imageAvatarBG"
+        android:layout_width="310dp"
+        android:layout_height="310dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewWelcome"
+        app:layout_constraintTop_toTopOf="@+id/marginTopImageAvatar"
+        app:shapeAppearanceOverlay="@style/circle"
+        app:srcCompat="@drawable/avatar_placeholder" />
+
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/imageAvatar"
         android:layout_width="310dp"
         android:layout_height="310dp"
@@ -61,7 +72,7 @@
         android:id="@+id/textPositionUser"
         android:layout_width="250dp"
         android:layout_height="42dp"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="8dp"
         android:background="@color/black"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -71,7 +82,7 @@
         android:id="@+id/textUnitUser"
         android:layout_width="250dp"
         android:layout_height="42dp"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="8dp"
         android:background="@color/black"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

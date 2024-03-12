@@ -14,7 +14,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitClient {
     private static Retrofit retrofit = null;
-    private static final String BASE_URL = "https://event2024.kienlongbank.com/";
+    private static final String BASE_URL = "http://event2024.kienlongbank.com/";
     private static final String API_KEY = "4f720dd0a13aec6b440d18531dc5e8e0";
 
     public static Retrofit getClient() {
